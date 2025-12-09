@@ -1,0 +1,39 @@
+.Screen {
+  width: 397px;
+  height: 30px;
+  border: 2px solid rgb(134, 133, 133);
+  background: white;
+  text-align: left;
+}
+
+.Buttons-container {
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* left and right groups */
+}
+
+.Left-Grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-auto-rows: 40px;
+}
+
+.Right-Grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-auto-rows: 40px;
+}
+.Right-Grid button {
+  background-color: orange;
+}
+
+button {
+  width: 100px;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.Outline {
+  width: 200px;
+  height: 250px;
+  margin: 50px;
+}
