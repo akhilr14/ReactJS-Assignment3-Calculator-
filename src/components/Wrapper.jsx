@@ -3,99 +3,162 @@ import Output from "./Output";
 
 export default function Wrapper() {
   const numbers = [7, 8, 9, 4, 5, 6, 1, 2, 3, "+/-", 0, "."];
-  const operator = ["/", "*", "+", "-", "="];
-  const [out, setOutput] = useState("");
+  const operator = ["/", "x", "+", "-", "="];
 
-  function operation(expression) {
-    let ans;
-    let proexp = expression.replaceAll("%", "/100*");
-    try {
-      ans = eval(proexp).toString();
-    } catch {
-      ans = "Invalid Expression";
-    }
-    return ans;
-  }
+  const [calc, setCalc] = useState({
+    sign: "",
+    num: "",
+    res: "",
+  });
 
-  function minus(inp) {
-    if (inp[0] == "-") {
-      inp = inp.slice(1);
+  const numClickHandler = (e) => {
+    const value = e.target.innerHTML;
+
+    if (calc.res && !calc.sign) {
+      setCalc({
+        sign: "",
+        num: value,
+        res: "",
+      });
+    } else if (calc.sign && !calc.num) {
+      setCalc({
+        ...calc,
+        num: value,
+      });
     } else {
-      inp = "-" + inp;
+      setCalc({
+        ...calc,
+        num: calc.num + value,
+      });
     }
-    return inp;
-  }
+  };
 
-  function handleClick(e) {
-    const value = e.target.value;
-    if (
-      out == "Invalid Expression" ||
-      out == "Infinity" ||
-      (out.charAt(0) == 0 && value != "." && out.charAt(1) != ".")
-    ) {
-      setOutput(value);
-    } else if (value == "bksp") {
-      setOutput(out.slice(0, -1));
-    } else if (value == "=") {
-      setOutput(operation(out));
-    } else if (value == "+/-") {
-      setOutput(minus(out));
+  const commaClickHandler = () => {
+    if (!calc.num.includes(".")) {
+      setCalc({
+        ...calc,
+        num: calc.num ? calc.num + "." : "0.",
+      });
+    }
+  };
+
+  const signClickHandler = (e) => {
+    const value = e.target.innerHTML;
+    if (!calc.num && !calc.res) return;
+
+    if (!calc.res && calc.num) {
+      setCalc({
+        ...calc,
+        sign: value,
+        res: calc.num,
+        num: "",
+      });
     } else {
-      setOutput(out + value);
+      setCalc({
+        ...calc,
+        sign: value,
+        num: "",
+      });
     }
-  }
+  };
 
-  function handleClickAC() {
-    setOutput("");
-  }
+  const equalsClickHandler = () => {
+    if (!calc.sign || !calc.num) return;
+
+    const a = parseFloat(calc.res);
+    const b = parseFloat(calc.num);
+
+    const math = (a, b, op) =>
+      op === "+" ? a + b : op === "-" ? a - b : op === "x" ? a * b : a / b;
+
+    setCalc({
+      sign: "",
+      num: "",
+      res:
+        calc.sign === "/" && calc.num === "0"
+          ? "Cannot divide by 0"
+          : math(a, b, calc.sign).toString(),
+    });
+  };
+
+  const invertClickHandler = () => {
+    if (calc.num) {
+      setCalc({
+        ...calc,
+        num: (parseFloat(calc.num) * -1).toString(),
+      });
+    } else if (calc.res) {
+      setCalc({
+        ...calc,
+        res: (parseFloat(calc.res) * -1).toString(),
+      });
+    }
+  };
+
+  const percentClickHandler = () => {
+    setCalc({
+      ...calc,
+      num: calc.num ? (parseFloat(calc.num) / 100).toString() : "",
+      res: calc.res ? (parseFloat(calc.res) / 100).toString() : "",
+    });
+  };
+
+  const resetClickHandler = () => {
+    setCalc({
+      sign: "",
+      num: "",
+      res: "",
+    });
+  };
+
+  const bkspClickHandler = () => {
+    if (calc.num) {
+      const newNum = calc.num.slice(0, -1);
+      setCalc({
+        ...calc,
+        num: newNum === "" ? "0" : newNum,
+      });
+    }
+  };
 
   return (
     <>
-      <Output result={out} />
+      <Output result={calc.num || calc.res || "0"} />
       <div className="Buttons-container">
         <div className="Left-Grid">
-          <button
-            className="Buttons"
-            key="AC"
-            onClick={(e) => handleClickAC(e)}
-            value="AC"
-          >
+          <button className="Buttons" onClick={resetClickHandler}>
             AC
           </button>
-          <button
-            className="Buttons"
-            key="bksp"
-            onClick={(e) => handleClick(e)}
-            value="bksp"
-          >
-            bksp
+          <button className="Buttons" onClick={bkspClickHandler}>
+            &larr;
           </button>
-          <button
-            className="Buttons"
-            key="%"
-            onClick={(e) => handleClick(e)}
-            value="%"
-          >
+          <button className="Buttons" onClick={percentClickHandler}>
             %
           </button>
+
           {numbers.map((num) => (
             <button
-              className="NumButtons"
               key={num}
-              onClick={(e) => handleClick(e)}
-              value={num}
+              className="NumButtons"
+              onClick={
+                num === "+/-"
+                  ? invertClickHandler
+                  : num === "."
+                  ? commaClickHandler
+                  : numClickHandler
+              }
             >
               {num}
             </button>
           ))}
         </div>
+
         <div className="Right-Grid">
           {operator.map((ops) => (
             <button
-              className="OpsButtons"
               key={ops}
-              onClick={(e) => handleClick(e)}
-              value={ops}
+              className="OpsButtons"
+              onClick={ops === "=" ? equalsClickHandler : signClickHandler}
             >
               {ops}
             </button>

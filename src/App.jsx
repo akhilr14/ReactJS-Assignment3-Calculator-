@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Wrapper from "./components/Wrapper";
-import "./style/Output.css";
+import "./style/style.css";
 function App() {
   return (
     <>
