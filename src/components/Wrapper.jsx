@@ -16,6 +16,16 @@ export default function Wrapper() {
     }
     return ans;
   }
+
+  function minus(inp) {
+    if (inp[0] == "-") {
+      inp = inp.slice(1);
+    } else {
+      inp = "-" + inp;
+    }
+    return inp;
+  }
+
   function handleClick(e) {
     const value = e.target.value;
     if (
@@ -28,6 +38,8 @@ export default function Wrapper() {
       setOutput(out.slice(0, -1));
     } else if (value == "=") {
       setOutput(operation(out));
+    } else if (value == "+/-") {
+      setOutput(minus(out));
     } else {
       setOutput(out + value);
     }
